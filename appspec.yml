@@ -1,0 +1,7 @@
+version: 0.0
+os: linux
+hooks:
+  ApplicationStart:
+    - location: /docker_trigger.sh
+      timeout: 700
+      runas: root

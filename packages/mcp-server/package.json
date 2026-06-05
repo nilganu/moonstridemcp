@@ -1,0 +1,31 @@
+{
+  "name": "@moonstride/mcp-server",
+  "version": "0.1.0",
+  "description": "Provider-agnostic MCP server for the Moonstride API (stdio + Streamable HTTP)",
+  "type": "module",
+  "main": "./dist/server.js",
+  "bin": {
+    "moonstride-mcp": "./dist/stdio.js",
+    "moonstride-mcp-http": "./dist/http.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src",
+    "start:stdio": "node dist/stdio.js",
+    "start:http": "node dist/http.js",
+    "inspect": "npx -y @modelcontextprotocol/inspector node dist/stdio.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "@moonstride/api-client": "*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "vitest": "^2.1.8"
+  }
+}

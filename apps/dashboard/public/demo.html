@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>moonstride — Travel CRM, backoffice & booking engine</title>
+    <style>
+      :root {
+        --plum: #400f4e;
+        --plum-dark: #30093b;
+        --coral: #fe6652;
+        --ink: #2d2d3a;
+        --muted: #6b6b7b;
+        --line: #ece8f1;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: #fff; }
+      a { text-decoration: none; color: inherit; }
+      .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+      /* Header */
+      header { position: sticky; top: 0; z-index: 50; background: #fff; border-bottom: 1px solid var(--line); }
+      .nav { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+      .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 22px; color: var(--plum); letter-spacing: -0.5px; }
+      .brand .mark { width: 30px; height: 30px; border-radius: 8px; background: var(--coral); display: grid; place-items: center; color: #fff; font-size: 18px; }
+      nav.menu { display: flex; gap: 26px; }
+      nav.menu a { font-size: 14.5px; font-weight: 600; color: #3a3a48; }
+      nav.menu a:hover { color: var(--coral); }
+      .header-cta { display: flex; align-items: center; gap: 14px; }
+      .btn { display: inline-block; font-weight: 700; font-size: 14px; padding: 11px 22px; border-radius: 8px; cursor: pointer; border: 0; }
+      .btn-coral { background: var(--coral); color: #fff; }
+      .btn-coral:hover { background: #ed4a34; }
+      .btn-ghost-light { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.5); }
+      .login { font-size: 14px; font-weight: 600; color: var(--plum); }
+
+      /* Hero */
+      .hero { background: radial-gradient(1200px 500px at 80% -10%, #5a1e6e 0%, transparent 60%), linear-gradient(135deg, var(--plum) 0%, var(--plum-dark) 100%); color: #fff; padding: 90px 0 110px; position: relative; overflow: hidden; }
+      .hero .eyebrow { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; margin-bottom: 22px; }
+      .hero h1 { font-size: 50px; line-height: 1.08; max-width: 880px; letter-spacing: -1px; }
+      .hero h1 .accent { color: var(--coral); }
+      .hero p.sub { font-size: 19px; color: rgba(255,255,255,.8); max-width: 720px; margin: 22px 0 34px; line-height: 1.6; }
+      .hero .cta-row { display: flex; gap: 14px; flex-wrap: wrap; }
+      .blob { position: absolute; border-radius: 50%; filter: blur(2px); opacity: .25; }
+
+      /* Stats */
+      .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 980px; margin: -56px auto 0; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 28px; box-shadow: 0 20px 50px rgba(64,15,78,.10); position: relative; z-index: 2; }
+      .stat { text-align: center; }
+      .stat .num { font-size: 30px; font-weight: 800; color: var(--plum); }
+      .stat .lbl { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+      /* Features */
+      .section { padding: 80px 0; }
+      .section h2 { font-size: 34px; text-align: center; color: var(--plum); letter-spacing: -0.5px; }
+      .section .lead { text-align: center; color: var(--muted); max-width: 620px; margin: 14px auto 48px; font-size: 16px; line-height: 1.6; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; }
+      .feature { border: 1px solid var(--line); border-radius: 16px; padding: 28px; transition: box-shadow .2s, transform .2s; background: #fff; }
+      .feature:hover { box-shadow: 0 16px 40px rgba(64,15,78,.10); transform: translateY(-3px); }
+      .feature .ic { width: 48px; height: 48px; border-radius: 12px; background: #f3edf7; color: var(--plum); display: grid; place-items: center; font-size: 22px; margin-bottom: 16px; }
+      .feature h3 { font-size: 18px; color: var(--plum); margin-bottom: 8px; }
+      .feature p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+
+      /* Band */
+      .band { background: linear-gradient(135deg, var(--plum) 0%, var(--plum-dark) 100%); color: #fff; border-radius: 22px; padding: 56px; text-align: center; }
+      .band h2 { color: #fff; font-size: 30px; }
+      .band p { color: rgba(255,255,255,.8); margin: 12px auto 26px; max-width: 560px; }
+
+      /* Footer */
+      footer { background: var(--plum-dark); color: rgba(255,255,255,.75); padding: 60px 0 30px; margin-top: 70px; }
+      .fcols { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 30px; }
+      footer h4 { color: #fff; font-size: 14px; margin-bottom: 14px; }
+      footer a { display: block; font-size: 13.5px; margin-bottom: 9px; color: rgba(255,255,255,.7); }
+      footer a:hover { color: var(--coral); }
+      .soc2 { display: inline-block; margin-top: 14px; border: 1px solid rgba(255,255,255,.25); border-radius: 8px; padding: 8px 12px; font-size: 12px; }
+      .fbottom { border-top: 1px solid rgba(255,255,255,.12); margin-top: 36px; padding-top: 20px; font-size: 12.5px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+      @media (max-width: 860px) { .stats, .fcols { grid-template-columns: 1fr 1fr; } nav.menu { display: none; } .hero h1 { font-size: 36px; } }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="container nav">
+        <div class="brand"><span class="mark">m</span>moonstride</div>
+        <nav class="menu">
+          <a href="#">Features</a>
+          <a href="#">Pricing</a>
+          <a href="#">Solutions</a>
+          <a href="#">Websites</a>
+          <a href="#">Resources</a>
+          <a href="#">About</a>
+        </nav>
+        <div class="header-cta">
+          <a class="login" href="#">Login</a>
+          <button class="btn btn-coral">Request a Demo</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <span class="blob" style="width:280px;height:280px;background:#fe6652;top:-60px;right:8%;"></span>
+      <span class="blob" style="width:180px;height:180px;background:#9b4dca;bottom:10px;left:6%;"></span>
+      <div class="container">
+        <span class="eyebrow">⭐ Trusted by travel businesses worldwide</span>
+        <h1>Welcome to <span class="accent">moonstride.</span> Everything you need to optimise and grow your travel business in one solution.</h1>
+        <p class="sub">Travel CRM + backoffice + booking engine software tailored for travel agents, tour operators, homeworkers and DMC's.</p>
+        <div class="cta-row">
+          <button class="btn btn-coral">Request a Demo</button>
+          <button class="btn btn-ghost-light">▶ Watch overview</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="container">
+      <div class="stats">
+        <div class="stat"><div class="num">1,200+</div><div class="lbl">Destinations</div></div>
+        <div class="stat"><div class="num">7</div><div class="lbl">Languages</div></div>
+        <div class="stat"><div class="num">24/7</div><div class="lbl">Support</div></div>
+        <div class="stat"><div class="num">SOC 2</div><div class="lbl">Compliant</div></div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <section class="section">
+      <div class="container">
+        <h2>One platform for the whole journey</h2>
+        <p class="lead">From first enquiry to final invoice — manage every part of your travel business in one place.</p>
+        <div class="grid">
+          <div class="feature"><div class="ic">📇</div><h3>Travel CRM</h3><p>Capture enquiries, profile customers, and track every interaction across your pipeline.</p></div>
+          <div class="feature"><div class="ic">🧾</div><h3>Quotations & Bookings</h3><p>Build quotes and confirm bookings in minutes with templates and live availability.</p></div>
+          <div class="feature"><div class="ic">🗺️</div><h3>Itinerary builder</h3><p>Craft beautiful day-by-day itineraries your customers will love.</p></div>
+          <div class="feature"><div class="ic">💼</div><h3>Backoffice</h3><p>Supplier payments, invoices, and accounting — handled end to end.</p></div>
+          <div class="feature"><div class="ic">📈</div><h3>Reporting suite</h3><p>Sales, profit and performance dashboards updated in real time.</p></div>
+          <div class="feature"><div class="ic">🤖</div><h3>AI assistant</h3><p>Ask your data anything — bookings, sales, departures — in plain English. <strong>Try the compass, bottom-right →</strong></p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA band -->
+    <div class="container">
+      <div class="band">
+        <h2>See moonstride in action</h2>
+        <p>Book a personalised demo and discover how moonstride can grow your travel business.</p>
+        <button class="btn btn-coral">Request a Demo</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="fcols">
+          <div>
+            <div class="brand" style="color:#fff;margin-bottom:12px;"><span class="mark">m</span>moonstride</div>
+            <p style="font-size:13.5px;max-width:260px;">Travel CRM, backoffice and booking engine software in one solution.</p>
+            <span class="soc2">🔒 SOC 2 Type II Compliant</span>
+          </div>
+          <div><h4>Product</h4><a href="#">Features</a><a href="#">Pricing</a><a href="#">Websites</a><a href="#">Booking engine</a></div>
+          <div><h4>Solutions</h4><a href="#">Tour Operator</a><a href="#">Travel Agent</a><a href="#">DMC</a><a href="#">Corporate Travel</a></div>
+          <div><h4>Resources</h4><a href="#">Blog</a><a href="#">Support</a><a href="#">FAQs</a><a href="#">API Docs</a></div>
+          <div><h4>Company</h4><a href="#">About</a><a href="#">Careers</a><a href="#">Contact</a><a href="#">Request a Demo</a></div>
+        </div>
+        <div class="fbottom">
+          <span>© 2026 moonstride. All rights reserved.</span>
+          <span>Privacy · Terms · Cookies</span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Aria assistant, served by this same server -->
+    <script src="/embed.js"></script>
+  </body>
+</html>

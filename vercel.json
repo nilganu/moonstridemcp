@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build -w @moonstride/api-client && npm run build -w @moonstride/dashboard",
+  "outputDirectory": "apps/dashboard/.next"
+}

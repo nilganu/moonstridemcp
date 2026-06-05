@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Pre_build action
+      - Today="$(date '+%Y%m%d%H%M')-prod"
+      - echo Login into AWS ECR
+      - aws ecr get-login-password --region eu-west-2 | sudo docker login --username AWS --password-stdin 068026327892.dkr.ecr.eu-west-2.amazonaws.com
+      - REPOSITORY_URL=068026327892.dkr.ecr.eu-west-2.amazonaws.com/moonstride-mcp
+      
+  build:
+    commands:
+      - echo Start Build
+      - echo Building Image...
+      - docker build -t moonstride-mcp -f packages/mcp-server/Dockerfile .
+      - docker build . -f packages/mcp-server/Dockerfile -t $REPOSITORY_URL:$Today
+      - docker tag $REPOSITORY_URL:$Today $REPOSITORY_URL:prod
+  post_build:
+    commands:
+      - echo Pushing the images to ECR
+      - docker push $REPOSITORY_URL:$Today
+      - docker push $REPOSITORY_URL:prod
+      - echo Images pushed to ECR
+
+artifacts:
+  files:
+    - appspec.yml
+    - docker_trigger.sh
+
