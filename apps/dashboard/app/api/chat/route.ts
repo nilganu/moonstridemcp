@@ -164,14 +164,35 @@ export async function POST(request: Request): Promise<Response> {
   const toolTrace: Array<{ tool: string; input: unknown; ok: boolean }> = [];
   let table: ChatTable | null = null;
 
+  // If the configured model isn't available to this key, fall back automatically.
+  let activeModel = MODEL;
+  const FALLBACK_MODEL = "gpt-4o-mini";
+  const createCompletion = async () => {
+    try {
+      return await openai.chat.completions.create({
+        model: activeModel,
+        messages,
+        tools: TOOLS,
+        tool_choice: "auto",
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (activeModel !== FALLBACK_MODEL && /model/i.test(msg)) {
+        activeModel = FALLBACK_MODEL;
+        return await openai.chat.completions.create({
+          model: activeModel,
+          messages,
+          tools: TOOLS,
+          tool_choice: "auto",
+        });
+      }
+      throw e;
+    }
+  };
+
   try {
   for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
-    const completion = await openai.chat.completions.create({
-      model: MODEL,
-      messages,
-      tools: TOOLS,
-      tool_choice: "auto",
-    });
+    const completion = await createCompletion();
 
     const choice = completion.choices[0]?.message;
     if (!choice) {
