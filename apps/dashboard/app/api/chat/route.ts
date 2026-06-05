@@ -164,6 +164,7 @@ export async function POST(request: Request): Promise<Response> {
   const toolTrace: Array<{ tool: string; input: unknown; ok: boolean }> = [];
   let table: ChatTable | null = null;
 
+  try {
   for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
     const completion = await openai.chat.completions.create({
       model: MODEL,
@@ -249,4 +250,8 @@ export async function POST(request: Request): Promise<Response> {
     toolTrace,
     table,
   });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: `Assistant error: ${message}` }, { status: 500 });
+  }
 }
