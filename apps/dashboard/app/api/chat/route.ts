@@ -10,7 +10,7 @@ import { getClient } from "@/lib/server/client";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const MODEL = process.env.OPENAI_MODEL ?? "gpt-5.4";
+const MODEL = process.env.OPENAI_MODEL ?? "gpt-5.4-mini";
 const MAX_TOOL_TURNS = 6;
 
 /** Shared JSON schema for every Moonstride tool (all params optional). */
