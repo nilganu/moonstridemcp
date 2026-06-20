@@ -205,6 +205,7 @@ export async function POST(request: Request): Promise<Response> {
         reply: (choice.content ?? "").trim(),
         toolTrace,
         table,
+        model: activeModel,
       });
     }
 
