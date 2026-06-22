@@ -93,10 +93,10 @@ export interface ChatTable {
 const PREFERRED_COLS = [
   "ReferenceNumber", "BookingReference", "Title", "Customer", "Supplier", "Service",
   "Category", "Agent", "BookingStatus", "Status", "PipelineStage",
+  "TravelStartDate", "DepartureDate", "TravelEndDate",
   "DueAmount", "TotalAmount", "Amount", "AmountDue", "PaidAmount", "Currency",
   "DueDate", "BalanceDueDate", "AssignTo", "AssignedTo",
-  "TravelStartDate", "TravelEndDate", "DepartureDate", "BookingDateTime",
-  "BookingCurrency", "Name", "Email", "Subject",
+  "BookingDateTime", "BookingCurrency", "Name", "Email", "Subject",
 ];
 
 const MAX_TABLE_COLS = 10;
@@ -137,8 +137,9 @@ function flattenRow(r: Record<string, unknown>): Record<string, string | number>
   return out;
 }
 
-/** Build a paginated-friendly table payload from any array (or array-bearing) result. */
-function buildTable(source: string, data: unknown): ChatTable | null {
+/** Build a paginated-friendly table payload from any array (or array-bearing) result.
+ *  `pinned` columns (e.g. the date field the user filtered on) are shown first. */
+function buildTable(source: string, data: unknown, pinned: string[] = []): ChatTable | null {
   const arr = extractArray(data);
   if (!arr || arr.length === 0) return null;
   const flat = arr
@@ -148,7 +149,11 @@ function buildTable(source: string, data: unknown): ChatTable | null {
 
   const present = new Set<string>();
   for (const row of flat.slice(0, 50)) for (const k of Object.keys(row)) present.add(k);
-  const ordered = PREFERRED_COLS.filter((c) => present.has(c));
+  // Lead columns first, then the pinned (filtered) date, then the rest by preference.
+  const lead = ["ReferenceNumber", "BookingReference", "Title", "Customer"];
+  const priority = [...lead, ...pinned, ...PREFERRED_COLS];
+  const ordered: string[] = [];
+  for (const c of priority) if (present.has(c) && !ordered.includes(c)) ordered.push(c);
   for (const c of present) if (!ordered.includes(c)) ordered.push(c);
   const columns = ordered.slice(0, MAX_TABLE_COLS);
 
@@ -261,7 +266,16 @@ export async function POST(request: Request): Promise<Response> {
         // Any list/record-set result is shown to the user as ONE paginated
         // table; the model gets a compact summary (count + first rows) and is
         // told to summarise rather than repeat the rows in prose.
-        const built = buildTable(call.function.name, data);
+        // Pin whatever date field the search filtered on (e.g. TravelStartDate
+        // for "departing") so it's always a visible column.
+        const pinned: string[] = [];
+        const filterObj = (parsedArgs as { filter?: Record<string, unknown> }).filter;
+        if (filterObj && typeof filterObj === "object") {
+          for (const [k, v] of Object.entries(filterObj)) {
+            if (v && typeof v === "object" && ("From" in v || "To" in v)) pinned.push(k);
+          }
+        }
+        const built = buildTable(call.function.name, data, pinned);
         if (built) {
           table = built;
           content = JSON.stringify({
