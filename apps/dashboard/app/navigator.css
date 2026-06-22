@@ -532,6 +532,16 @@
   background: #faf9fe;
 }
 
+/* Per-answer disclaimer footnote */
+.message__disclaimer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #ece8f1;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: #9a98a8;
+}
+
 /* ===== Tool Status ===== */
 .tool-status {
   display: flex;

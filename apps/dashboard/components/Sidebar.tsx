@@ -7,7 +7,6 @@ import {
   CalendarCheck,
   MessageSquareText,
   Compass,
-  Bot,
   Receipt,
   Wrench,
   LogOut,
@@ -20,7 +19,6 @@ const NAV = [
   { href: "/accounting", label: "Accounting", icon: Receipt },
   { href: "/explorer", label: "API Explorer", icon: Compass },
   { href: "/tools", label: "MCP Tools", icon: Wrench },
-  { href: "/chat", label: "AI Assistant", icon: Bot },
 ] as const;
 
 export function Sidebar() {

@@ -35,17 +35,6 @@ export default function NavInput({ onSend, disabled }: NavInputProps) {
 
   return (
     <div className="chat-input">
-      <div className="accuracy-info">
-        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <circle cx="7" cy="7" r="6.5" stroke="#D4900A" strokeWidth="1" />
-          <path d="M7 4v3.5" stroke="#D4900A" strokeWidth="1.4" strokeLinecap="round" />
-          <circle cx="7" cy="10" r="0.7" fill="#D4900A" />
-        </svg>
-        <p>
-          Responses are generated from your moonstride data. Accuracy may vary based on your
-          specific context. Always verify before acting.
-        </p>
-      </div>
       <div className="chat-input__wrapper">
         <textarea
           ref={textareaRef}

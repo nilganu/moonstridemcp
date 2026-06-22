@@ -59,6 +59,12 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
             ) : null}
             {msg.isStreaming && <span className="typing-cursor" />}
             {msg.table && <ChatTable data={msg.table} />}
+            {!msg.isStreaming && msg.content && (
+              <div className="message__disclaimer">
+                AI responses are generated from your moonstride data. Accuracy may vary
+                based on your specific context. Always verify before acting.
+              </div>
+            )}
           </div>
         ) : (
           <p>{msg.content}</p>
