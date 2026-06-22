@@ -506,6 +506,32 @@
 .message__markdown h2 { font-size: 15px; }
 .message__markdown h3 { font-size: 14px; }
 
+/* ===== Markdown tables ===== */
+.message__markdown table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+  font-size: 13px;
+  display: block;
+  overflow-x: auto;
+}
+.message__markdown thead th {
+  background: #f3edf7;
+  color: #1e1e2f;
+  font-weight: 600;
+}
+.message__markdown th,
+.message__markdown td {
+  border: 1px solid #e5e1ef;
+  padding: 7px 12px;
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.message__markdown tbody tr:nth-child(even) {
+  background: #faf9fe;
+}
+
 /* ===== Tool Status ===== */
 .tool-status {
   display: flex;

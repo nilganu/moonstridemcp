@@ -73,10 +73,9 @@ COUNTING FROM SEARCH:
 - "List the soonest N" still requires limit 500 (so the count is right) — then display only the first N rows. Never lower the limit just because the user wants to see N rows.
 
 PRESENTING DATA (important):
-- ALWAYS show the actual figures in your reply. NEVER write "see the table below", "detail data in the below table", or similar — only a *_search tool produces a separate table; nothing else does.
-- For NON-search data (statistics, totals/metrics, counts, currencies, pipeline stages, reference lists, etc.): put the data DIRECTLY in your reply as ONE Markdown table (right-align numeric columns). Do not refer to any other table.
-- For a *_search tool: the matching records are shown to the user in ONE paginated table automatically — so give a one-sentence summary with the total count (and the filter/date field used). Do NOT also paste the rows. If a search returns 0 results, say "No matching records found." and do NOT mention a table.
-- Never reference a table unless you called a *_search tool that returned at least one row.
+- LISTS of records (bookings, enquiries, tasks, supplier payments due, payment installments, users, currencies, etc.) are shown to the user automatically in ONE paginated TABLE by the UI. For these: give a one-sentence summary with the total count (and the filter/date used). Do NOT list the rows in prose and do NOT build your own table — the UI already shows it. If 0 records, say "No matching records found."
+- SINGLE AGGREGATES (totals/metrics, counts, statistics, exchange rate): put the figures DIRECTLY in your reply as ONE compact Markdown table, right-aligning numbers.
+- NEVER write "see the table below" / "detail data in the below table". Either the UI shows the list table, or you include the aggregate data yourself — never refer to a table that isn't there.
 - If a tool returns an authorization error, say the user's credentials may lack access to that component.`;
 
 interface ChatBody {
@@ -90,12 +89,27 @@ export interface ChatTable {
   source: string;
 }
 
-/** Preferred column order when present (covers bookings/enquiries/tasks). */
+/** Preferred column order when present (covers bookings/enquiries/tasks/reports). */
 const PREFERRED_COLS = [
-  "ReferenceNumber", "Title", "Category", "Customer", "Agent", "BookingStatus",
-  "Status", "PipelineStage", "TravelStartDate", "TravelEndDate", "DepartureDate",
-  "BookingDateTime", "BookingCurrency", "Name", "Email", "DueDate", "Subject",
+  "ReferenceNumber", "BookingReference", "Title", "Category", "Customer", "Supplier",
+  "Service", "Agent", "BookingStatus", "Status", "PipelineStage",
+  "Amount", "AmountDue", "TotalAmountDue", "Currency", "DueDate", "BalanceDueDate",
+  "TravelStartDate", "TravelEndDate", "DepartureDate", "BookingDateTime",
+  "BookingCurrency", "AssignTo", "AssignedTo", "Name", "Email", "Subject",
 ];
+
+/** Find an array-of-objects in a value (handles bare arrays and {records:[...]} shapes). */
+function extractArray(data: unknown): Record<string, unknown>[] | null {
+  if (Array.isArray(data)) return data as Record<string, unknown>[];
+  if (data && typeof data === "object") {
+    for (const v of Object.values(data)) {
+      if (Array.isArray(v) && v.some((x) => x && typeof x === "object")) {
+        return v as Record<string, unknown>[];
+      }
+    }
+  }
+  return null;
+}
 
 /** Flatten a record to scalar cells, picking Name/Code/Title from nested objects. */
 function flattenRow(r: Record<string, unknown>): Record<string, string | number> {
@@ -113,9 +127,9 @@ function flattenRow(r: Record<string, unknown>): Record<string, string | number>
   return out;
 }
 
-/** Build a paginated-friendly table payload from a search array result. */
+/** Build a paginated-friendly table payload from any array (or array-bearing) result. */
 function buildTable(source: string, data: unknown): ChatTable | null {
-  const arr = Array.isArray(data) ? data : null;
+  const arr = extractArray(data);
   if (!arr || arr.length === 0) return null;
   const flat = arr
     .filter((x) => x && typeof x === "object")
@@ -234,24 +248,22 @@ export async function POST(request: Request): Promise<Response> {
           endpointId,
           parsedArgs as Record<string, unknown>,
         );
-        // For search lists, hand the rows to the UI as a paginated table and
-        // give the model a compact summary (count + first few rows) instead of
-        // the full payload, so it writes a short answer rather than a huge table.
-        if (endpointId.endsWith(".search")) {
-          const built = buildTable(call.function.name, data);
-          if (built) {
-            table = built;
-            content = JSON.stringify({
-              total: built.total,
-              columns: built.columns,
-              sample: built.rows.slice(0, 5),
-              note: "Full results are shown to the user in a paginated table; summarise, do not repeat all rows.",
-            });
-            ok = true;
-            toolTrace.push({ tool: call.function.name, input: parsedArgs, ok });
-            messages.push({ role: "tool", tool_call_id: call.id, content });
-            continue;
-          }
+        // Any list/record-set result is shown to the user as ONE paginated
+        // table; the model gets a compact summary (count + first rows) and is
+        // told to summarise rather than repeat the rows in prose.
+        const built = buildTable(call.function.name, data);
+        if (built) {
+          table = built;
+          content = JSON.stringify({
+            total: built.total,
+            columns: built.columns,
+            sample: built.rows.slice(0, 5),
+            note: "These records are shown to the user in a paginated TABLE in the UI. Give a one-sentence summary with the total count — do NOT list the rows in prose.",
+          });
+          ok = true;
+          toolTrace.push({ tool: call.function.name, input: parsedArgs, ok });
+          messages.push({ role: "tool", tool_call_id: call.id, content });
+          continue;
         }
         const json = JSON.stringify(data);
         content = json.length > 6000 ? `${json.slice(0, 6000)}… (truncated)` : json;
