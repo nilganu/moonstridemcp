@@ -91,12 +91,15 @@ export interface ChatTable {
 
 /** Preferred column order when present (covers bookings/enquiries/tasks/reports). */
 const PREFERRED_COLS = [
-  "ReferenceNumber", "BookingReference", "Title", "Category", "Customer", "Supplier",
-  "Service", "Agent", "BookingStatus", "Status", "PipelineStage",
-  "Amount", "AmountDue", "TotalAmountDue", "Currency", "DueDate", "BalanceDueDate",
+  "ReferenceNumber", "BookingReference", "Title", "Customer", "Supplier", "Service",
+  "Category", "Agent", "BookingStatus", "Status", "PipelineStage",
+  "DueAmount", "TotalAmount", "Amount", "AmountDue", "PaidAmount", "Currency",
+  "DueDate", "BalanceDueDate", "AssignTo", "AssignedTo",
   "TravelStartDate", "TravelEndDate", "DepartureDate", "BookingDateTime",
-  "BookingCurrency", "AssignTo", "AssignedTo", "Name", "Email", "Subject",
+  "BookingCurrency", "Name", "Email", "Subject",
 ];
+
+const MAX_TABLE_COLS = 10;
 
 /** Find an array-of-objects in a value (handles bare arrays and {records:[...]} shapes). */
 function extractArray(data: unknown): Record<string, unknown>[] | null {
@@ -120,8 +123,15 @@ function flattenRow(r: Record<string, unknown>): Record<string, string | number>
     else if (typeof v === "boolean") out[k] = String(v);
     else if (!Array.isArray(v)) {
       const o = v as Record<string, unknown>;
-      const pick = o.Name ?? o.Title ?? o.Code ?? o.Value ?? o.Symbol ?? o.FullName;
+      const nested = (key: string) =>
+        (o[key] as Record<string, unknown> | undefined)?.Name;
+      const pick =
+        o.Name ?? o.Title ?? o.Code ?? o.Value ?? o.Symbol ?? o.FullName ??
+        nested("User") ?? nested("Customer") ?? nested("Agent");
       if (typeof pick === "string" || typeof pick === "number") out[k] = pick;
+      // Surface a Supplier nested inside Service (supplier-payments report).
+      const supplier = (o.Supplier as Record<string, unknown> | undefined)?.Name;
+      if (typeof supplier === "string" && !("Supplier" in out)) out.Supplier = supplier;
     }
   }
   return out;
@@ -140,7 +150,7 @@ function buildTable(source: string, data: unknown): ChatTable | null {
   for (const row of flat.slice(0, 50)) for (const k of Object.keys(row)) present.add(k);
   const ordered = PREFERRED_COLS.filter((c) => present.has(c));
   for (const c of present) if (!ordered.includes(c)) ordered.push(c);
-  const columns = ordered.slice(0, 8);
+  const columns = ordered.slice(0, MAX_TABLE_COLS);
 
   return {
     columns,
