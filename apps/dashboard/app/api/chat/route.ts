@@ -72,9 +72,11 @@ COUNTING FROM SEARCH:
 - Search returns a plain array with NO total field. To COUNT matching records, set "limit": 500 and report the returned array length as the total.
 - "List the soonest N" still requires limit 500 (so the count is right) — then display only the first N rows. Never lower the limit just because the user wants to see N rows.
 
-STYLE:
-- Be concise. Use Markdown tables for small breakdowns (e.g. sales by currency); right-align numeric columns.
-- For SEARCH/list results, the UI shows the full results in a paginated table (20 rows/page) automatically. So DO NOT reproduce the rows in Markdown — just give a one or two sentence summary stating the total count and the filter/date field used. The table appears below your message.
+PRESENTING DATA (important):
+- ALWAYS show the actual figures in your reply. NEVER write "see the table below", "detail data in the below table", or similar — only a *_search tool produces a separate table; nothing else does.
+- For NON-search data (statistics, totals/metrics, counts, currencies, pipeline stages, reference lists, etc.): put the data DIRECTLY in your reply as ONE Markdown table (right-align numeric columns). Do not refer to any other table.
+- For a *_search tool: the matching records are shown to the user in ONE paginated table automatically — so give a one-sentence summary with the total count (and the filter/date field used). Do NOT also paste the rows. If a search returns 0 results, say "No matching records found." and do NOT mention a table.
+- Never reference a table unless you called a *_search tool that returned at least one row.
 - If a tool returns an authorization error, say the user's credentials may lack access to that component.`;
 
 interface ChatBody {
